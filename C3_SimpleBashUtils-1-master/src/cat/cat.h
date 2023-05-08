@@ -130,7 +130,7 @@ int printFile(char *filePath, options *config) {
         printf("%6d\t", config->strCountB++);
       } else if (config->b && !config->s && ch == '\n' && chh != '\n' && chh != EOF && emptyLine == 0) {
         printf("%6d\t", config->strCountB++);
-      } else if (config->b && ch == '\n' && chh == '\n') {
+      } else if (config->b && ch == '\n' && chh == '\n' && emptyLine == 0) {
         printf("      \t");
       } 
       firstSym = 0;
@@ -139,6 +139,5 @@ int printFile(char *filePath, options *config) {
   fclose(file);
   return err;
 }
-
 
 #endif  // SRC_CAT_CAT_H_
