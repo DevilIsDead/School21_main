@@ -24,6 +24,7 @@ typedef struct
 int parsConfig (int argc, char *argv[], options *config);
 void printVars (int argc, char *argv[], options config);
 int grep (char *filepath, options config);
+void freeMem (options config);
 
 int main (int argc, char *argv[]) {
     options config = {0};
@@ -40,7 +41,19 @@ int main (int argc, char *argv[]) {
           grep(config.files[i], config);
         }
     }    
+    freeMem(config);
     return 0;
+}
+
+void freeMem (options config) {
+  for (int i = 0; i < config.pathNum; i++) {
+    free(config.files[i]);
+  }
+  free(config.files);
+  for (int i = 0; i < config.templateNum; i++) {
+    free(config.template[i]);
+  }
+  free(config.template);
 }
 
 int grep (char *filepath, options config) {
@@ -54,7 +67,12 @@ int grep (char *filepath, options config) {
     while (!feof(file))
     {
       getline(&line, &len, file);
-      printf("%s", line);
+      for (int k = 0; k < config.templateNum; k++) {
+        if (strstr(line, config.template[k]) != NULL) {
+          printf("%s:", filepath);
+          printf("%s", line);
+        }
+      } 
     }
   }
   fclose(file);
@@ -111,6 +129,7 @@ int parsConfig (int argc, char *argv[], options *config) {
       }
     } else {
         if (templateCount == 0 && !config->e) {
+          config->template[config->templateNum] = realloc(config->template[config->templateNum], strlen(argv[i])*sizeof(char));
           config->template[config->templateNum] = argv[i];
           config->templateNum++;
           templateCount++;
