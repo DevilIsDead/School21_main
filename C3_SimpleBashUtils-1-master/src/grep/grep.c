@@ -1,14 +1,17 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct 
 {
-  int b;
   int e;
-  int n;
-  int s;
-  int t;
+  int i;
   int v;
+  int c;
+  int l;
+  int n;
+  int templateNum;
+  char **template;
   int argsNum;
   int pathNum;
   int strCount;
@@ -18,6 +21,8 @@ typedef struct
 } options;
 
 int parsConfig (int argc, char *argv[], options *config);
+void printVars (int argc, char *argv[], options config);
+int grep (char *filepath, options config);
 
 int main (int argc, char *argv[]) {
     options config = {0};
@@ -27,56 +32,92 @@ int main (int argc, char *argv[]) {
         printf("cat21: enter file path!\n");
       } else {
         printf("cat21: unknown option : %s\n", config.err);
+      }
     } else { 
-    
+        printVars(argc, argv, config);
+        for (int i = config.argsNum + config.pathNum + 1; i < argc; i++) {
+          grep(argv[i], config);
+        }
     }    
     return 0;
+}
+
+int grep (char *filepath, options config) {
+  int err = 0;
+  size_t len = 0;
+  char *line = NULL;
+  FILE *file = fopen(filepath, "rt");
+  if (file == NULL) {
+    printf("cat21: %s: No such file or directory\n", filepath);
+  } else {
+    while (!feof(file))
+    {
+      getline(&line, &len, file);
+      printf("%s", line);
+    }
+  }
+  fclose(file);
+  return err;
+}
+
+void printVars (int argc, char *argv[], options config) {
+  printf("e i v c l n\n");
+  printf("%d %d %d %d %d %d\n", config.e, config.i, config.v, config.c, config.l, config.n);
+  printf("templates : ");
+  for (int j = 0; j < config.templateNum; j++) {
+    printf("%s ", config.template[j]);
+  }
+  printf("\nfiles : ");
+  for (int i = config.argsNum + config.pathNum + 1; i < argc; i++) {
+    printf("%s ", argv[i]);
+  }
+  printf("\n");
 }
 
 int parsConfig (int argc, char *argv[], options *config) {
   int tmp = 0;
   int argCount = 0;
+  int templateCount = 0;
+  config->template = malloc(sizeof(char**));
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
-      if (!strcmp(argv[i], "-b") || !strcmp(argv[i], "--number-nonblank")) {
-        if (!config->n)config->b = 1;
-        argCount++;
-      } else if (!strcmp(argv[i], "-e")) {
+      if (!strcmp(argv[i], "-e")) {
         config->e = 1;
-        config->v = 1;
+        config->template[config->templateNum] = realloc(config->template[config->templateNum], strlen(argv[i])*sizeof(char));
+        config->template[config->templateNum] = argv[i + 1];
+        config->templateNum++;
+        templateCount++;
         argCount++;
-      } else if (!strcmp(argv[i], "-E")) {
-        config->e = 1;
-        argCount++;
-      } else if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--number")) {
-        config->n = 1;
-        config->b = 0;
-        argCount++;
-      } else if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--squeeze-blank")) {
-        config->s = 1;
-        argCount++;
-      } else if (!strcmp(argv[i], "-t")) {
-        config->t = 1;
-        config->v = 1;
-        argCount++;
-      } else if (!strcmp(argv[i], "-T")) {
-        config->t = 1;
+        i++;
+      } else if (!strcmp(argv[i], "-i")) {
+        config->i = 1;
         argCount++;
       } else if (!strcmp(argv[i], "-v")) {
         config->v = 1;
+        argCount++;
+      } else if (!strcmp(argv[i], "-c")) {
+        config->c = 1;
+        argCount++;
+      } else if (!strcmp(argv[i], "-l")) {
+        config->l = 1;
+        argCount++;
+      } else if (!strcmp(argv[i], "-n")) {
+        config->n = 1;
         argCount++;
       } else {
         config->err = argv[i];
         tmp = 1;
       }
     } else {
-        continue;
+        if (templateCount == 0 && !config->e) {
+          config->template[config->templateNum] = argv[i];
+          config->templateNum++;
+          templateCount++;
+        } else {
+          config->pathNum++;
+        }
     }
   }
   config->argsNum = argCount;
-  config->pathNum = argc - argCount - 1;
-  if (config->pathNum < 1) {
-    tmp = 1;
-  }
   return tmp;
 }
