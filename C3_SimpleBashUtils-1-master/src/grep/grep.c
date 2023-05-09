@@ -12,6 +12,7 @@ typedef struct
   int n;
   int templateNum;
   char **template;
+  char **files;
   int argsNum;
   int pathNum;
   int strCount;
@@ -35,8 +36,8 @@ int main (int argc, char *argv[]) {
       }
     } else { 
         printVars(argc, argv, config);
-        for (int i = config.argsNum + config.pathNum + 1; i < argc; i++) {
-          grep(argv[i], config);
+        for (int i = 0; i < config.pathNum; i++) {
+          grep(config.files[i], config);
         }
     }    
     return 0;
@@ -68,17 +69,17 @@ void printVars (int argc, char *argv[], options config) {
     printf("%s ", config.template[j]);
   }
   printf("\nfiles : ");
-  for (int i = config.argsNum + config.pathNum + 1; i < argc; i++) {
-    printf("%s ", argv[i]);
+  for (int i = 0; i < config.pathNum; i++) {
+    printf("%s ", config.files[i]);
   }
   printf("\n");
 }
 
 int parsConfig (int argc, char *argv[], options *config) {
   int tmp = 0;
-  int argCount = 0;
   int templateCount = 0;
   config->template = malloc(sizeof(char**));
+  config->files = malloc(sizeof(char**));
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
       if (!strcmp(argv[i], "-e")) {
@@ -87,23 +88,23 @@ int parsConfig (int argc, char *argv[], options *config) {
         config->template[config->templateNum] = argv[i + 1];
         config->templateNum++;
         templateCount++;
-        argCount++;
+        config->argsNum++;
         i++;
       } else if (!strcmp(argv[i], "-i")) {
         config->i = 1;
-        argCount++;
+        config->argsNum++;
       } else if (!strcmp(argv[i], "-v")) {
         config->v = 1;
-        argCount++;
+        config->argsNum++;
       } else if (!strcmp(argv[i], "-c")) {
         config->c = 1;
-        argCount++;
+        config->argsNum++;
       } else if (!strcmp(argv[i], "-l")) {
         config->l = 1;
-        argCount++;
+        config->argsNum++;
       } else if (!strcmp(argv[i], "-n")) {
         config->n = 1;
-        argCount++;
+        config->argsNum++;
       } else {
         config->err = argv[i];
         tmp = 1;
@@ -114,10 +115,11 @@ int parsConfig (int argc, char *argv[], options *config) {
           config->templateNum++;
           templateCount++;
         } else {
+          config->files[config->pathNum] = realloc(config->files[config->pathNum], strlen(argv[i])*sizeof(char));
+          config->files[config->pathNum] = argv[i];
           config->pathNum++;
         }
     }
   }
-  config->argsNum = argCount;
   return tmp;
 }
