@@ -24,7 +24,7 @@ typedef struct
 int parsConfig (int argc, char *argv[], options *config);
 void printVars (int argc, char *argv[], options config);
 int grep (char *filepath, options config);
-void freeMem (options config);
+void freeMem (options *config);
 
 int main (int argc, char *argv[]) {
     options config = {0};
@@ -39,21 +39,22 @@ int main (int argc, char *argv[]) {
         printVars(argc, argv, config);
         for (int i = 0; i < config.pathNum; i++) {
           grep(config.files[i], config);
+          printf("\n");
         }
     }    
-    freeMem(config);
+    freeMem(&config);
     return 0;
 }
 
-void freeMem (options config) {
-  for (int i = 0; i < config.pathNum; i++) {
-    free(config.files[i]);
+void freeMem (options *config) {
+  for (int i = 0; i < config->pathNum; i++) {
+    free(config->files[i]);
   }
-  free(config.files);
-  for (int i = 0; i < config.templateNum; i++) {
-    free(config.template[i]);
+  free(config->files);
+  for (int i = 0; i < config->templateNum; i++) {
+    free(config->template[i]);
   }
-  free(config.template);
+  free(config->template);
 }
 
 int grep (char *filepath, options config) {
