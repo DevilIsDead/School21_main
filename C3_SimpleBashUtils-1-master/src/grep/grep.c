@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <regex.h>
 
 typedef struct 
 {
@@ -53,7 +54,9 @@ void freeMem (options *config) {
 
 int grep (char *filepath, options config) {
   int err = 0;
+  int check = 0;
   size_t len = 0;
+  regex_t regex;
   char *line = NULL;
   FILE *file = fopen(filepath, "rt");
   if (file == NULL) {
@@ -62,16 +65,26 @@ int grep (char *filepath, options config) {
     while (!feof(file))
     {
       getline(&line, &len, file);
-      config.lineCount++;
+      config.lineCount++; 
+
+      
       for (int k = 0; k < config.templateNum; k++) {
-        if (!config.v && strstr(line, config.template[k]) != NULL) {
+        if (config.i) {
+          regcomp(&regex, config.template[k], REG_ICASE);
+        } else {
+          regcomp(&regex, config.template[k], 0);
+        }
+        check = regexec(&regex, line, 0, NULL, 0);
+        regfree(&regex);
+        if (!config.v && !check) {
           config.goodLineCount++;
           if (!config.c && !config.l) {
             if (!config.h) printf("%s:", filepath);
             if (config.n) printf("%6d  ", config.lineCount);
             printf("%s", line);
+            k = config.templateNum;
           }
-        } else if (config.v && strstr(line, config.template[k]) == NULL) {
+        } else if (config.v && check) {
           config.goodLineCount++;
           if (!config.c && !config.l) {
             if (!config.h) printf("%s:", filepath);
