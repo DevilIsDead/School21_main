@@ -10,14 +10,14 @@ typedef struct
   int c;
   int l;
   int n;
-  int templateNum;
+  int h;
   char **template;
   char **files;
+  int templateNum;
   int argsNum;
   int pathNum;
-  int strCount;
-  int strCountB;
-  int flag;
+  int lineCount;
+  int goodLineCount;
   char *err;
 } options;
 
@@ -62,16 +62,27 @@ int grep (char *filepath, options config) {
     while (!feof(file))
     {
       getline(&line, &len, file);
+      config.lineCount++;
       for (int k = 0; k < config.templateNum; k++) {
         if (!config.v && strstr(line, config.template[k]) != NULL) {
-          printf("%s:", filepath);
-          printf("%s", line);
+          config.goodLineCount++;
+          if (!config.c && !config.l) {
+            if (!config.h) printf("%s:", filepath);
+            if (config.n) printf("%6d  ", config.lineCount);
+            printf("%s", line);
+          }
         } else if (config.v && strstr(line, config.template[k]) == NULL) {
-          printf("%s:", filepath);
-          printf("%s", line);
+          config.goodLineCount++;
+          if (!config.c && !config.l) {
+            if (!config.h) printf("%s:", filepath);
+            if (config.n) printf("%6d  ", config.lineCount);
+            printf("%s", line);
+          }
         }
-      } 
+      }
     }
+    if (config.c) printf("%d\n", config.goodLineCount);
+    if (config.l) printf("%s", filepath);
   }
   fclose(file);
   return err;
@@ -116,6 +127,9 @@ int parsConfig (int argc, char *argv[], options *config) {
         config->argsNum++;
       } else if (!strcmp(argv[i], "-l")) {
         config->l = 1;
+        config->argsNum++;
+      } else if (!strcmp(argv[i], "-h")) {
+        config->h = 1;
         config->argsNum++;
       } else if (!strcmp(argv[i], "-n")) {
         config->n = 1;
