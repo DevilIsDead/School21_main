@@ -52,8 +52,11 @@ void freeMem (options *config) {
   free(config->template);
 }
 
+
+
 int grep (char *filepath, options config) {
   int err = 0;
+  int vFlag = 0;
   int check = 0;
   size_t len = 0;
   regex_t regex;
@@ -85,14 +88,36 @@ int grep (char *filepath, options config) {
             k = config.templateNum;
           }
         } else if (config.v && check) {
-          config.goodLineCount++;
-          if (!config.c && !config.l) {
-            if (!config.h) printf("%s:", filepath);
-            if (config.n) printf("%6d  ", config.lineCount);
-            printf("%s", line);
+
+
+          for (int c = 0; c < config.templateNum; c++) {
+            if (config.i) {
+              regcomp(&regex, config.template[c], REG_ICASE);
+            } else {
+              regcomp(&regex, config.template[c], 0);
+            }
+
+            if(regexec(&regex, line, 0, NULL, 0)) {
+              vFlag++;
+            } else {
+              
+              c = config.templateNum;
+            }
+            regfree(&regex);
+          }
+
+
+          if (vFlag == config.templateNum) {
+            config.goodLineCount++;
+            if (!config.c && !config.l) {
+              if (!config.h) printf("%s:", filepath);
+              if (config.n) printf("%6d  ", config.lineCount);
+              printf("%s", line);
+            }
           }
         }
       }
+      vFlag = 0;
     }
     if (config.c) printf("%d\n", config.goodLineCount);
     if (config.l) printf("%s", filepath);
