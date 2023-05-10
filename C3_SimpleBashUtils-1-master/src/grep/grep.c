@@ -47,13 +47,7 @@ int main (int argc, char *argv[]) {
 }
 
 void freeMem (options *config) {
-  for (int i = 0; i < config->pathNum; i++) {
-    free(config->files[i]);
-  }
   free(config->files);
-  for (int j = 0; j < config->templateNum; j++) {
-    free(config->template[j]);
-  }
   free(config->template);
 }
 
