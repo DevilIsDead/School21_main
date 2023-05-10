@@ -42,7 +42,7 @@ int main (int argc, char *argv[]) {
           printf("\n");
         }
     }
-    //freeMem(&config);
+    freeMem(&config);
     return 0;
 }
 
@@ -105,16 +105,15 @@ void printVars (options config) {
 
 int parsConfig (int argc, char *argv[], options *config) {
   int tmp = 0;
-  int templateCount = 0;
-  config->template = malloc(sizeof(char**));
-  config->files = malloc(sizeof(char**));
+  config->template = malloc(sizeof(char*));
+  config->files = malloc(sizeof(char*));
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
       if (!strcmp(argv[i], "-e")) {
         config->e = 1;
+        config->template = realloc(config->template, sizeof(char*) * (config->templateNum + 1));
         config->template[config->templateNum] = argv[i + 1];
         config->templateNum++;
-        templateCount++;
         config->argsNum++;
         i++;
       } else if (!strcmp(argv[i], "-i")) {
@@ -140,11 +139,12 @@ int parsConfig (int argc, char *argv[], options *config) {
         tmp = 1;
       }
     } else {
-        if (templateCount == 0 && !config->e) {
+        if (config->templateNum == 0 && !config->e) {
+          config->template = realloc(config->template, sizeof(char*) * (config->templateNum + 1));
           config->template[config->templateNum] = argv[i];
           config->templateNum++;
-          templateCount++;
         } else {
+          config->files = realloc(config->files, sizeof(char*) * (config->pathNum + 1));
           config->files[config->pathNum] = argv[i];
           config->pathNum++;
         }
