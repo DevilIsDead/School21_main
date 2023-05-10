@@ -100,7 +100,6 @@ int parsConfig (int argc, char *argv[], options *config) {
     if (argv[i][0] == '-') {
       if (!strcmp(argv[i], "-e")) {
         config->e = 1;
-        config->template[config->templateNum] = malloc(strlen(argv[i])*sizeof(char));
         config->template[config->templateNum] = argv[i + 1];
         config->templateNum++;
         templateCount++;
@@ -127,12 +126,10 @@ int parsConfig (int argc, char *argv[], options *config) {
       }
     } else {
         if (templateCount == 0 && !config->e) {
-          config->template[config->templateNum] = malloc(strlen(argv[i])*sizeof(char));
           config->template[config->templateNum] = argv[i];
           config->templateNum++;
           templateCount++;
         } else {
-          config->files[config->pathNum] = malloc(strlen(argv[i])*sizeof(char));
           config->files[config->pathNum] = argv[i];
           config->pathNum++;
         }
