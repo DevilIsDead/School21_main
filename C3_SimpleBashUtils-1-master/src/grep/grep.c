@@ -22,7 +22,7 @@ typedef struct
 } options;
 
 int parsConfig (int argc, char *argv[], options *config);
-void printVars (int argc, char *argv[], options config);
+void printVars (options config);
 int grep (char *filepath, options config);
 void freeMem (options *config);
 
@@ -36,13 +36,13 @@ int main (int argc, char *argv[]) {
         printf("cat21: unknown option : %s\n", config.err);
       }
     } else { 
-        printVars(argc, argv, config);
+        printVars(config);
         for (int i = 0; i < config.pathNum; i++) {
           grep(config.files[i], config);
           printf("\n");
         }
-        freeMem(&config);
     }
+    //freeMem(&config);
     return 0;
 }
 
@@ -84,11 +84,12 @@ int grep (char *filepath, options config) {
     if (config.c) printf("%d\n", config.goodLineCount);
     if (config.l) printf("%s", filepath);
   }
+  free(line);
   fclose(file);
   return err;
 }
 
-void printVars (int argc, char *argv[], options config) {
+void printVars (options config) {
   printf("e i v c l n\n");
   printf("%d %d %d %d %d %d\n", config.e, config.i, config.v, config.c, config.l, config.n);
   printf("templates : ");
