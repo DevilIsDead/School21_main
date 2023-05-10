@@ -41,8 +41,8 @@ int main (int argc, char *argv[]) {
           grep(config.files[i], config);
           printf("\n");
         }
-    }    
-    freeMem(&config);
+        freeMem(&config);
+    }
     return 0;
 }
 
@@ -69,7 +69,10 @@ int grep (char *filepath, options config) {
     {
       getline(&line, &len, file);
       for (int k = 0; k < config.templateNum; k++) {
-        if (strstr(line, config.template[k]) != NULL) {
+        if (!config.v && strstr(line, config.template[k]) != NULL) {
+          printf("%s:", filepath);
+          printf("%s", line);
+        } else if (config.v && strstr(line, config.template[k]) == NULL) {
           printf("%s:", filepath);
           printf("%s", line);
         }
