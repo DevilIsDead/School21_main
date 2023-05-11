@@ -40,7 +40,6 @@ int main (int argc, char *argv[]) {
         //printVars(config);
         for (int i = 0; i < config.pathNum; i++) {
           grep(config.files[i], config);
-          //printf("\n");
         }
     }
     freeMem(&config);
@@ -80,7 +79,6 @@ int grep (char *filepath, options config) {
         check = regexec(&regex, line, 0, NULL, 0);
         regfree(&regex);
 
-
         if (!config.v && !check) {
           config.goodLineCount++;
           k = config.templateNum;
@@ -90,21 +88,7 @@ int grep (char *filepath, options config) {
             printf("%s", line);
           }          
         } else if (config.v && check) {
-          for (int c = 0; c < config.templateNum; c++) {
-            if (config.i) {
-              regcomp(&regex, config.template[c], REG_ICASE);
-            } else {
-              regcomp(&regex, config.template[c], 0);
-            }
-
-            if(regexec(&regex, line, 0, NULL, 0)) {
-              vFlag++;
-            } else {
-              vFlag = 0; 
-              c = config.templateNum;
-            }
-            regfree(&regex);
-
+            vFlag++;
             if (vFlag == config.templateNum) {
               config.goodLineCount++;
               k = config.templateNum;
@@ -115,20 +99,20 @@ int grep (char *filepath, options config) {
                 printf("%s", line);
               } 
             }
-          }
-
-           
+        } else if (config.v && !check) {
+              vFlag = 0;  
         }
+        regfree(&regex);
       }
-      
     }
-    
     if (config.l || config.c) printf("%s:", filepath);
     if (config.c) printf("%d\n", config.goodLineCount);
+    if (config.l) printf("\n");
     config.lineCount = 0;
     config.goodLineCount = 0;
   }
-
+  if ((!check && !config.v || config.v && check) && !config.l && !config.c) printf("\n");
+  free(line);
   fclose(file);
   return err;
 }
