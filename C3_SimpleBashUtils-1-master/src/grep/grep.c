@@ -32,15 +32,15 @@ int main (int argc, char *argv[]) {
     
     if (parsConfig(argc, argv, &config)){
       if (config.err == 0) {
-        printf("cat21: enter file path!\n");
+        printf("grep21: enter file path!\n");
       } else {
-        printf("cat21: unknown option : %s\n", config.err);
+        printf("grep21: unknown option : %s\n", config.err);
       }
     } else { 
-        printVars(config);
+        //printVars(config);
         for (int i = 0; i < config.pathNum; i++) {
           grep(config.files[i], config);
-          printf("\n");
+          //printf("\n");
         }
     }
     freeMem(&config);
@@ -79,17 +79,17 @@ int grep (char *filepath, options config) {
         }
         check = regexec(&regex, line, 0, NULL, 0);
         regfree(&regex);
+
+
         if (!config.v && !check) {
           config.goodLineCount++;
+          k = config.templateNum;
           if (!config.c && !config.l) {
             if (!config.h) printf("%s:", filepath);
             if (config.n) printf("%6d  ", config.lineCount);
             printf("%s", line);
-            k = config.templateNum;
-          }
+          }          
         } else if (config.v && check) {
-
-
           for (int c = 0; c < config.templateNum; c++) {
             if (config.i) {
               regcomp(&regex, config.template[c], REG_ICASE);
@@ -100,29 +100,35 @@ int grep (char *filepath, options config) {
             if(regexec(&regex, line, 0, NULL, 0)) {
               vFlag++;
             } else {
-              
+              vFlag = 0; 
               c = config.templateNum;
             }
             regfree(&regex);
-          }
 
-
-          if (vFlag == config.templateNum) {
-            config.goodLineCount++;
-            if (!config.c && !config.l) {
-              if (!config.h) printf("%s:", filepath);
-              if (config.n) printf("%6d  ", config.lineCount);
-              printf("%s", line);
+            if (vFlag == config.templateNum) {
+              config.goodLineCount++;
+              k = config.templateNum;
+              vFlag = 0;
+              if (!config.c && !config.l) {
+                if (!config.h) printf("%s:", filepath);
+                if (config.n) printf("%6d  ", config.lineCount);
+                printf("%s", line);
+              } 
             }
           }
+
+           
         }
       }
-      vFlag = 0;
+      
     }
+    
+    if (config.l || config.c) printf("%s:", filepath);
     if (config.c) printf("%d\n", config.goodLineCount);
-    if (config.l) printf("%s", filepath);
+    config.lineCount = 0;
+    config.goodLineCount = 0;
   }
-  free(line);
+
   fclose(file);
   return err;
 }
