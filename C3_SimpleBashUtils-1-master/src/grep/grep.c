@@ -23,7 +23,6 @@ typedef struct
 } options;
 
 int parsConfig (int argc, char *argv[], options *config);
-void printVars (options config);
 int grep (char *filepath, options config);
 void freeMem (options *config);
 
@@ -36,7 +35,6 @@ int main (int argc, char *argv[]) {
         printf("grep21: unknown option : %s\n", config.err);
       }
     } else { 
-        //printVars(config);
         for (int i = 0; i < config.pathNum; i++) {
           grep(config.files[i], config);
         }
@@ -79,7 +77,7 @@ int grep (char *filepath, options config) {
           k = config.templateNum;
           if (!config.c && !config.l) {
             if (!config.h) printf("%s:", filepath);
-            if (config.n) printf("%6d  ", config.lineCount);
+            if (config.n) printf("%d:", config.lineCount);
             printf("%s", line);
           }          
         } else if (config.v && check) {
@@ -90,7 +88,7 @@ int grep (char *filepath, options config) {
               vFlag = 0;
               if (!config.c && !config.l) {
                 if (!config.h) printf("%s:", filepath);
-                if (config.n) printf("%6d  ", config.lineCount);
+                if (config.n) printf("%d:", config.lineCount);
                 printf("%s", line);
               } 
             }
@@ -101,7 +99,7 @@ int grep (char *filepath, options config) {
       }
     }
     if (config.l || config.c) printf("%s:", filepath);
-    if (config.c) printf("%d\n", config.goodLineCount);
+    if (config.c && !config.l) printf("%d\n", config.goodLineCount);
     if (config.l) printf("\n");
     config.lineCount = 0;
     config.goodLineCount = 0;
@@ -110,20 +108,6 @@ int grep (char *filepath, options config) {
     fclose(file);
   }
   return err;
-}
-
-void printVars (options config) {
-  printf("e i v c l n\n");
-  printf("%d %d %d %d %d %d\n", config.e, config.i, config.v, config.c, config.l, config.n);
-  printf("templates : ");
-  for (int j = 0; j < config.templateNum; j++) {
-    printf("%s ", config.template[j]);
-  }
-  printf("\nfiles : ");
-  for (int i = 0; i < config.pathNum; i++) {
-    printf("%s ", config.files[i]);
-  }
-  printf("\n");
 }
 
 int parsConfig (int argc, char *argv[], options *config) {
