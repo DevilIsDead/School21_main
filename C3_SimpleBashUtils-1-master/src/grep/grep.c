@@ -29,7 +29,6 @@ void freeMem (options *config);
 
 int main (int argc, char *argv[]) {
     options config = {0};
-    
     if (parsConfig(argc, argv, &config)){
       if (config.err == 0) {
         printf("grep21: enter file path!\n");
@@ -42,7 +41,7 @@ int main (int argc, char *argv[]) {
           grep(config.files[i], config);
         }
     }
-    freeMem(&config);
+    if (config.err == NULL) freeMem(&config);
     return 0;
 }
 
@@ -50,8 +49,6 @@ void freeMem (options *config) {
   free(config->files);
   free(config->template);
 }
-
-
 
 int grep (char *filepath, options config) {
   int err = 0;
@@ -62,14 +59,13 @@ int grep (char *filepath, options config) {
   char *line = NULL;
   FILE *file = fopen(filepath, "rt");
   if (file == NULL) {
+    config.err = filepath;
     printf("cat21: %s: No such file or directory\n", filepath);
   } else {
     while (!feof(file))
     {
       getline(&line, &len, file);
       config.lineCount++; 
-
-      
       for (int k = 0; k < config.templateNum; k++) {
         if (config.i) {
           regcomp(&regex, config.template[k], REG_ICASE);
@@ -78,7 +74,6 @@ int grep (char *filepath, options config) {
         }
         check = regexec(&regex, line, 0, NULL, 0);
         regfree(&regex);
-
         if (!config.v && !check) {
           config.goodLineCount++;
           k = config.templateNum;
@@ -110,10 +105,10 @@ int grep (char *filepath, options config) {
     if (config.l) printf("\n");
     config.lineCount = 0;
     config.goodLineCount = 0;
+    if ((!check && !config.v || config.v && check) && !config.l && !config.c) printf("\n");
+    free(line);
+    fclose(file);
   }
-  if ((!check && !config.v || config.v && check) && !config.l && !config.c) printf("\n");
-  free(line);
-  fclose(file);
   return err;
 }
 
