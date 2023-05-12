@@ -98,7 +98,7 @@ int grep (char *filepath, options config) {
         regfree(&regex);
       }
     }
-    if (config.l || config.c) printf("%s:", filepath);
+    if (config.l || config.c) printf("%s", filepath);
     if (config.c && !config.l) printf("%d\n", config.goodLineCount);
     if (config.l) printf("\n");
     config.lineCount = 0;
