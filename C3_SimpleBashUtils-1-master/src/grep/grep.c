@@ -35,9 +35,15 @@ int main (int argc, char *argv[]) {
         printf("grep21: unknown option : %s\n", config.err);
       }
     } else { 
+      if (config.e) {
         for (int i = 0; i < config.pathNum; i++) {
           grep(config.files[i], config);
         }
+      } else {
+        for (int i = 1; i < config.pathNum; i++) {
+          grep(config.files[i], config);
+        }
+      }
     }
     if (config.err == NULL) freeMem(&config);
     return 0;
@@ -58,7 +64,7 @@ int grep (char *filepath, options config) {
   FILE *file = fopen(filepath, "rt");
   if (file == NULL) {
     config.err = filepath;
-    printf("cat21: %s: No such file or directory\n", filepath);
+    printf("grep21: %s: No such file or directory\n", filepath);
   } else {
     while (!feof(file))
     {
@@ -147,16 +153,15 @@ int parsConfig (int argc, char *argv[], options *config) {
         tmp = 1;
       }
     } else {
-        if (config->templateNum == 0 && !config->e) {
-          config->template = realloc(config->template, sizeof(char*) * (config->templateNum + 1));
-          config->template[config->templateNum] = argv[i];
-          config->templateNum++;
-        } else {
-          config->files = realloc(config->files, sizeof(char*) * (config->pathNum + 1));
-          config->files[config->pathNum] = argv[i];
-          config->pathNum++;
-        }
+      config->files = realloc(config->files, sizeof(char*) * (config->pathNum + 1));
+      config->files[config->pathNum] = argv[i];
+      config->pathNum++;
     }
+
+  }
+  if (!config->e) {
+    config->template[0] = config->files[0];
+    config->templateNum++;
   }
   return tmp;
 }
