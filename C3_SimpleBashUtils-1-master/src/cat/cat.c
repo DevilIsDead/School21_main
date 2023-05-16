@@ -1,6 +1,7 @@
 #include "cat.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int main (int argc, char *argv[]) {
@@ -14,19 +15,18 @@ int main (int argc, char *argv[]) {
         printf("cat21: unknown option : %s\n", config.err);
     }
     } else {
-      for (int i = 1; i < argc; i++ ) {
-        if (argv[i][0] != '-') {
-          printFile(argv[i], &config);
-          if (i != argc - 1) printf("\n");
-        }
+      for (int i = 0; i < config.pathNum; i++ ) {
+        printFile(config.files[i], &config);
       }
     }
+  if (config.files != NULL) free(config.files);
   return 0;
 }
 
 int parsConfig (int argc, char *argv[], options *config) {
   int tmp = 0;
   int argCount = 0;
+  config->files = malloc(sizeof(char*));
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
       if (!strcmp(argv[i], "-b") || !strcmp(argv[i], "--number-nonblank")) {
@@ -61,7 +61,9 @@ int parsConfig (int argc, char *argv[], options *config) {
         tmp = 1;
       }
     } else {
-        continue;
+        config->files = realloc(config->files, sizeof(char*) * (config->pathNum + 1));
+        config->files[config->pathNum] = argv[i];
+        config->pathNum++;
     }
   }
   config->argsNum = argCount;
@@ -89,7 +91,7 @@ int printFile(char *filePath, options *config) {
         ungetc(chh, file);
       }
       if (config->b && firstSym == 1 && ch == '\n') {
-        printf("      \t");
+        continue;
       } else if (firstSym == 1 && config->n) {
         printf("%6d\t", config->strCount++);
       } else if (firstSym == 1 && config->b) {
@@ -116,7 +118,6 @@ int printFile(char *filePath, options *config) {
         emptyLine = 1;
         if (firstSym != 1) printf("\n");
         if ((config->n) && firstSym != 1) printf("%6d\t", config->strCount++);
-        if ((config->b) && firstSym != 1) printf("      \t");
       } else if (config->s && ch == '\n' && chh != '\n' && emptyLine == 1) {
         if (firstSym != 1) printf("\n");
         emptyLine = 0;
@@ -135,7 +136,6 @@ int printFile(char *filePath, options *config) {
       } else if (config->b && !config->s && ch == '\n' && chh != '\n' && chh != EOF && emptyLine == 0) {
         printf("%6d\t", config->strCountB++);
       } else if (config->b && ch == '\n' && chh == '\n' && emptyLine == 0) {
-        printf("      \t");
       } 
       firstSym = 0;
     }

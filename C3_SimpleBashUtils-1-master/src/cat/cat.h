@@ -16,6 +16,7 @@ typedef struct
   int flag;
   int lastFile;
   char *err;
+  char **files;
 } options;
 
 int printFile(char *filePath, options *config);
