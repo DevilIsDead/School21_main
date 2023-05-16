@@ -56,7 +56,7 @@ int grep (char *filepath, options config) {
           config.goodLineCount++;
           k = config.templateNum;
           if (!config.c && !config.l) {
-            if (!config.h) printf("%s:", filepath);
+            if (!config.h && config.pathNum > 2) printf("%s:", filepath);
             if (config.n) printf("%d:", config.lineCount);
             printf("%s", line);
           }
