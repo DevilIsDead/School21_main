@@ -6,8 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct
-{
+typedef struct {
   int e;
   int i;
   int v;
@@ -25,8 +24,8 @@ typedef struct
   char *err;
 } options;
 
-int parsConfig (int argc, char *argv[], options *config);
-int grep (char *filepath, options config);
-void freeMem (options *config);
+int parsConfig(int argc, char *argv[], options *config);
+int grep(char *filepath, options config);
+void freeMem(options *config);
 
-#endif // SRC_GREP_GREP_H_
+#endif  // SRC_GREP_GREP_H_

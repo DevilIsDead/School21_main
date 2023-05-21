@@ -1,34 +1,34 @@
 #include "grep.h"
 
-int main (int argc, char *argv[]) {
-    options config = {0};
-    if (parsConfig(argc, argv, &config)){
-      if (config.err == 0) {
-        printf("grep21: enter file path!\n");
-      } else {
-        printf("grep21: unknown option : %s\n", config.err);
+int main(int argc, char *argv[]) {
+  options config = {0};
+  if (parsConfig(argc, argv, &config)) {
+    if (config.err == 0) {
+      printf("grep21: enter file path!\n");
+    } else {
+      printf("grep21: unknown option : %s\n", config.err);
+    }
+  } else {
+    if (config.e) {
+      for (int i = 0; i < config.pathNum; i++) {
+        grep(config.files[i], config);
       }
-    } else { 
-      if (config.e) {
-        for (int i = 0; i < config.pathNum; i++) {
-          grep(config.files[i], config);
-        }
-      } else {
-        for (int i = 1; i < config.pathNum; i++) {
-          grep(config.files[i], config);
-        }
+    } else {
+      for (int i = 1; i < config.pathNum; i++) {
+        grep(config.files[i], config);
       }
     }
-    freeMem(&config);
-    return 0;
+  }
+  freeMem(&config);
+  return 0;
 }
 
-void freeMem (options *config) {
+void freeMem(options *config) {
   if (config->files) free(config->files);
   if (config->template) free(config->template);
 }
 
-int grep (char *filepath, options config) {
+int grep(char *filepath, options config) {
   int err = 0;
   int vFlag = 0;
   int check = 0;
@@ -40,8 +40,7 @@ int grep (char *filepath, options config) {
     config.err = filepath;
     printf("grep21: %s: No such file or directory\n", filepath);
   } else {
-    while (!feof(file))
-    {
+    while (!feof(file)) {
       getline(&line, &len, file);
       config.lineCount++;
       for (int k = 0; k < config.templateNum; k++) {
@@ -61,19 +60,19 @@ int grep (char *filepath, options config) {
             printf("%s", line);
           }
         } else if (config.v && check) {
-            vFlag++;
-            if (vFlag == config.templateNum) {
-              config.goodLineCount++;
-              k = config.templateNum;
-              vFlag = 0;
-              if (!config.c && !config.l) {
-                if (!config.h) printf("%s:", filepath);
-                if (config.n) printf("%d:", config.lineCount);
-                printf("%s", line);
-              }
+          vFlag++;
+          if (vFlag == config.templateNum) {
+            config.goodLineCount++;
+            k = config.templateNum;
+            vFlag = 0;
+            if (!config.c && !config.l) {
+              if (!config.h) printf("%s:", filepath);
+              if (config.n) printf("%d:", config.lineCount);
+              printf("%s", line);
             }
+          }
         } else if (config.v && !check) {
-              vFlag = 0;
+          vFlag = 0;
         }
         regfree(&regex);
       }
@@ -84,22 +83,25 @@ int grep (char *filepath, options config) {
     if (config.l) printf("\n");
     config.lineCount = 0;
     config.goodLineCount = 0;
-    if (((!check && !config.v) || (config.v && check)) && !config.l && !config.c) printf("\n");
+    if (((!check && !config.v) || (config.v && check)) && !config.l &&
+        !config.c)
+      printf("\n");
     free(line);
     fclose(file);
   }
   return err;
 }
 
-int parsConfig (int argc, char *argv[], options *config) {
+int parsConfig(int argc, char *argv[], options *config) {
   int tmp = 0;
-  config->template = malloc(sizeof(char*));
-  config->files = malloc(sizeof(char*));
+  config->template = malloc(sizeof(char *));
+  config->files = malloc(sizeof(char *));
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
       if (!strcmp(argv[i], "-e")) {
         config->e = 1;
-        config->template = realloc(config->template, sizeof(char*) * (config->templateNum + 1));
+        config->template = realloc(config->template,
+                                   sizeof(char *) * (config->templateNum + 1));
         config->template[config->templateNum] = argv[i + 1];
         config->templateNum++;
         config->argsNum++;
@@ -127,11 +129,11 @@ int parsConfig (int argc, char *argv[], options *config) {
         tmp = 1;
       }
     } else {
-      config->files = realloc(config->files, sizeof(char*) * (config->pathNum + 1));
+      config->files =
+          realloc(config->files, sizeof(char *) * (config->pathNum + 1));
       config->files[config->pathNum] = argv[i];
       config->pathNum++;
     }
-
   }
   if (!config->e) {
     config->template[0] = config->files[0];

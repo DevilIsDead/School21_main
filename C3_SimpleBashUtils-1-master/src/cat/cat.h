@@ -1,8 +1,7 @@
 #ifndef SRC_CAT_CAT_H_
 #define SRC_CAT_CAT_H_
 
-typedef struct 
-{
+typedef struct {
   int b;
   int e;
   int n;
@@ -20,6 +19,6 @@ typedef struct
 } options;
 
 int printFile(char *filePath, options *config);
-int parsConfig (int argc, char *argv[], options *config);
+int parsConfig(int argc, char *argv[], options *config);
 
 #endif  // SRC_CAT_CAT_H_

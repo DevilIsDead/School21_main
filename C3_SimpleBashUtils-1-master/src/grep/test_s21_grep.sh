@@ -3,7 +3,7 @@
 TEST_COUNTER=0
 COUNTER_SUCCESS=0
 COUNTER_FAIL=0
-SUCCESS="Файлы result.txt и expected.txt идентичны"
+SUCCESS="Files result.txt and expected.txt are identical"
 
 
 echo "\nTests. Part #1"
