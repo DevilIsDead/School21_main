@@ -6,9 +6,9 @@ COUNTER_FAIL=0
 SUCCESS="Files result.txt and expected.txt are identical"
 
 
-echo "\nTests. Part #1"
+echo "Tests. Part #1"
 echo "================================================================="
-echo "\nTesting grep with test1.txt without flags...................."
+echo "Testing grep with test1.txt without flags...................."
 (( TEST_COUNTER = TEST_COUNTER + 1 ))
 ./s21_grep hello test1.txt > result.txt
 grep hello test1.txt > expected.txt
@@ -25,9 +25,9 @@ else
 fi
 rm result.txt expected.txt
 
-echo "\nTests. Part #2"
+echo "Tests. Part #2"
 echo "================================================================="
-echo "\nTesting grep with test1.txt with 1 flag...................."
+echo "Testing grep with test1.txt with 1 flag...................."
 
 for flag in -e -i -v -c -l -n
 do
@@ -48,9 +48,9 @@ fi
 rm result.txt expected.txt
 done
 
-echo "\nTests. Part #3"
+echo "Tests. Part #3"
 echo "================================================================="
-echo "\nTesting grep with test1.txt with 2 flags...................."
+echo "Testing grep with test1.txt with 2 flags...................."
 
 for flag in -i -v -c -l -n 
 do
@@ -74,9 +74,9 @@ do
     done
 done
 
-echo "\nTests. Part #4"
+echo "Tests. Part #4"
 echo "================================================================="
-echo "\nTesting grep with test1.txt with 3 flags...................."
+echo "Testing grep with test1.txt with 3 flags...................."
 
 for flag in -i -v -c -l -n 
 do
@@ -103,9 +103,9 @@ do
     done
 done
 
-echo "\nTests. Part #5"
+echo "Tests. Part #5"
 echo "================================================================="
-echo "\nTesting grep with test1.txt test2.txt test3.txt with 3 flags...................."
+echo "Testing grep with test1.txt test2.txt test3.txt with 3 flags...................."
 
 for flag in -i -v -c -l -n 
 do
@@ -132,9 +132,9 @@ do
     done
 done
 
-echo "\nTests. Part #6"
+echo "Tests. Part #6"
 echo "================================================================="
-echo "\nTesting grep with 3 files 3 flags and 2 templates...................."
+echo "Testing grep with 3 files 3 flags and 2 templates...................."
 
 for flag in -i -v -c -l -n 
 do
@@ -162,7 +162,7 @@ do
 done
 
 
-echo "\nTesting with empty file.........................................."
+echo "Testing with empty file.........................................."
 (( TEST_COUNTER = TEST_COUNTER + 1 ))
 if ./s21_grep hello test4.txt
 then 
@@ -173,7 +173,7 @@ else
     echo "was NOT SUCCESSFUL"
 fi
 
-echo "\n================================================================="
+echo "================================================================="
 echo "RESULT: from $TEST_COUNTER tests"
 echo "Successful: $COUNTER_SUCCESS"
 echo "Failed: $COUNTER_FAIL"

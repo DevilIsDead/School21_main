@@ -7,6 +7,7 @@
 #include <string.h>
 
 typedef struct {
+  int firstTempl;
   int e;
   int i;
   int v;
