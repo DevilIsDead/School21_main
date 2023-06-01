@@ -1,56 +1,59 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <regex.h>
+#include "grep.h"
 
-typedef struct 
-{
-  int e;
-  int i;
-  int v;
-  int c;
-  int l;
-  int n;
-  int h;
-  char **template;
-  char **files;
-  int templateNum;
-  int argsNum;
-  int pathNum;
-  int lineCount;
-  int goodLineCount;
-  char *err;
-} options;
+int main(int argc, char *argv[]) {
 
-int parsConfig (int argc, char *argv[], options *config);
-void printVars (options config);
-int grep (char *filepath, options config);
-void freeMem (options *config);
+    options config;
+    config.e = 0;
+    config.firstTempl = 0;
+    config.i = 0;
+    config.v = 0;
+    config.c = 0;
+    config.l = 0;
+    config.n = 0;
+    config.h = 0;
+    config.template = NULL;
+    config.files = NULL;
+    config.templateNum = 0;
+    config.argsNum = 0;
+    config.pathNum = 0;
+    config.lineCount = 0;
+    config.goodLineCount = 0;
+    config.err = NULL;
 
-int main (int argc, char *argv[]) {
-    options config = {0};
-    if (parsConfig(argc, argv, &config)){
-      if (config.err == 0) {
-        printf("grep21: enter file path!\n");
-      } else {
-        printf("grep21: unknown option : %s\n", config.err);
+    int res = parsConfig(argc, argv, &config);
+
+  if (res == 1) {
+      printf("grep21: unknown option : %s\n", config.err);
+  } else if (res == 2) {
+      printf("grep21: wrong usage of flag -e!\n");
+  } else if (res == 3){
+      printf("grep21: file path is not provided!\n");
+  } else {
+    if (config.e) {
+      for (int i = 0; i < config.pathNum; i++) {
+        grep(config.files[i], config);
       }
-    } else { 
-        //printVars(config);
-        for (int i = 0; i < config.pathNum; i++) {
-          grep(config.files[i], config);
-        }
+    } else {
+      for (int i = 1; i < config.pathNum; i++) {
+        grep(config.files[i], config);
+      }
     }
-    if (config.err == NULL) freeMem(&config);
-    return 0;
+  }
+  freeMem(&config);
+  return 0;
 }
 
-void freeMem (options *config) {
-  free(config->files);
-  free(config->template);
+void freeMem(options *config) {
+    if (config->files != NULL) {
+      free(config->files);
+    }
+    if (config->template != NULL) {
+      free(config->template);
+    }
 }
 
-int grep (char *filepath, options config) {
+
+int grep(char *filepath, options config) {
   int err = 0;
   int vFlag = 0;
   int check = 0;
@@ -60,12 +63,11 @@ int grep (char *filepath, options config) {
   FILE *file = fopen(filepath, "rt");
   if (file == NULL) {
     config.err = filepath;
-    printf("cat21: %s: No such file or directory\n", filepath);
+    printf("grep21: %s: No such file or directory\n", filepath);
   } else {
-    while (!feof(file))
-    {
+    while (!feof(file)) {
       getline(&line, &len, file);
-      config.lineCount++; 
+      config.lineCount++;
       for (int k = 0; k < config.templateNum; k++) {
         if (config.i) {
           regcomp(&regex, config.template[k], REG_ICASE);
@@ -78,67 +80,60 @@ int grep (char *filepath, options config) {
           config.goodLineCount++;
           k = config.templateNum;
           if (!config.c && !config.l) {
-            if (!config.h) printf("%s:", filepath);
-            if (config.n) printf("%6d  ", config.lineCount);
-            printf("%s", line);
-          }          
-        } else if (config.v && check) {
-            vFlag++;
-            if (vFlag == config.templateNum) {
-              config.goodLineCount++;
-              k = config.templateNum;
-              vFlag = 0;
-              if (!config.c && !config.l) {
-                if (!config.h) printf("%s:", filepath);
-                if (config.n) printf("%6d  ", config.lineCount);
+            if ((config.pathNum - config.firstTempl) >= 2) printf("%s:", filepath);
+            if (config.n) printf("%d:", config.lineCount);
                 printf("%s", line);
-              } 
+            if (line[strlen(line) - 1] != '\n') {
+                printf("\n");
             }
+          }
+        } else if (config.v && check) {
+          vFlag++;
+          if (vFlag == config.templateNum) {
+            config.goodLineCount++;
+            k = config.templateNum;
+            vFlag = 0;
+            if (!config.c && !config.l && !feof(file)) {
+              if ((config.pathNum - config.firstTempl) >= 2) printf("%s:", filepath);
+              if (config.n) printf("%d:", config.lineCount);
+              printf("%s", line);
+              if (line[strlen(line) - 1] != '\n') {
+                printf("\n");
+              }
+            }
+          }
         } else if (config.v && !check) {
-              vFlag = 0;  
+          vFlag = 0;
         }
-        regfree(&regex);
       }
     }
-    if (config.l || config.c) printf("%s:", filepath);
-    if (config.c) printf("%d\n", config.goodLineCount);
-    if (config.l) printf("\n");
+    if ((!config.v && config.l && config.goodLineCount > 0) || (config.v && config.l && config.goodLineCount == config.lineCount)) {
+        printf("%s\n", filepath);
+    } 
+    if (config.c && !config.l) printf("%s:%d\n", filepath, config.goodLineCount);
     config.lineCount = 0;
     config.goodLineCount = 0;
-    if ((!check && !config.v || config.v && check) && !config.l && !config.c) printf("\n");
     free(line);
     fclose(file);
   }
   return err;
 }
 
-void printVars (options config) {
-  printf("e i v c l n\n");
-  printf("%d %d %d %d %d %d\n", config.e, config.i, config.v, config.c, config.l, config.n);
-  printf("templates : ");
-  for (int j = 0; j < config.templateNum; j++) {
-    printf("%s ", config.template[j]);
-  }
-  printf("\nfiles : ");
-  for (int i = 0; i < config.pathNum; i++) {
-    printf("%s ", config.files[i]);
-  }
-  printf("\n");
-}
-
-int parsConfig (int argc, char *argv[], options *config) {
-  int tmp = 0;
-  config->template = malloc(sizeof(char*));
-  config->files = malloc(sizeof(char*));
+int parsConfig(int argc, char *argv[], options *config) {
+  int res = 0;
   for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
       if (!strcmp(argv[i], "-e")) {
         config->e = 1;
-        config->template = realloc(config->template, sizeof(char*) * (config->templateNum + 1));
-        config->template[config->templateNum] = argv[i + 1];
-        config->templateNum++;
         config->argsNum++;
-        i++;
+        if (i < argc - 1) {
+          config->templateNum++;
+          config->template = (char **) realloc(config->template, sizeof(char *) * (config->templateNum));
+          config->template[config->templateNum - 1] = (char *) argv[i + 1];
+          i++;
+        } else {
+          res = 2;
+        }
       } else if (!strcmp(argv[i], "-i")) {
         config->i = 1;
         config->argsNum++;
@@ -159,19 +154,25 @@ int parsConfig (int argc, char *argv[], options *config) {
         config->argsNum++;
       } else {
         config->err = argv[i];
-        tmp = 1;
+        res = 1;
       }
     } else {
-        if (config->templateNum == 0 && !config->e) {
-          config->template = realloc(config->template, sizeof(char*) * (config->templateNum + 1));
-          config->template[config->templateNum] = argv[i];
-          config->templateNum++;
-        } else {
-          config->files = realloc(config->files, sizeof(char*) * (config->pathNum + 1));
-          config->files[config->pathNum] = argv[i];
-          config->pathNum++;
-        }
+      config->pathNum++;
+      config->files = (char **) realloc(config->files, sizeof(char *) * (config->pathNum));
+      config->files[config->pathNum - 1] = argv[i]; 
     }
   }
-  return tmp;
+
+  if (config->pathNum == 0 && res == 0){
+    res = 3;
+  }
+
+  if (!config->templateNum) {
+    config->template = (char **) malloc(sizeof(char *));
+    config->template[0] = config->files[0];
+    config->templateNum = 1;
+    config->firstTempl = 1;
+  }
+
+  return res;
 }

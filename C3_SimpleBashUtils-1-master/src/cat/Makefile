@@ -1,6 +1,11 @@
-FLAGS = -Wall -Wextra -Werror -std=c11 -pedantic
+FLAGS = -Wall -Wextra -Werror -std=gnu11 -pedantic
 
 all: s21_cat
 
-s21_cat: cat.h cat.c
+s21_cat: 
 	gcc $(FLAGS) cat.c -o s21_cat
+
+clean: 
+	rm -rf s21_cat
+
+rebuild: clean s21_cat
