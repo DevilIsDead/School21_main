@@ -6,7 +6,7 @@ char *s21_strrchr(const char *str, int c) {
 
     for (int i = len; i >= 0; i--) {
         if (str[i] == c) {
-            res = ((char *)str) + i;
+            res = (char *)&str[i];
             break;
         }
     }

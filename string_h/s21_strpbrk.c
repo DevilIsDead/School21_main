@@ -7,7 +7,7 @@ char *s21_strpbrk(const char *str1, const char *str2) {
     for (int i = 0; i < len1; i++) {
         for (int j = 0; j < len2; j++) {
             if (str1[i] == str2[j]) {
-                res = &str1[i];
+                res = (char *)&str1[i];
                 break;
             }
         }
